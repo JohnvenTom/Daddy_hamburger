@@ -1,0 +1,18 @@
+{
+  "name": "daddy-hamburger-3d",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "3D 版本《老爹汉堡店》模拟经营游戏 - Three.js + Vite",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "three": "^0.160.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}

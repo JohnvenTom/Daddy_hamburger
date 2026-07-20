@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>老爹汉堡店 3D · Daddy Hamburger 3D</title>
+  <link rel="stylesheet" href="./src/styles.css" />
+</head>
+<body>
+  <!-- 3D 游戏画布容器 -->
+  <div id="game-canvas-container"></div>
+
+  <!-- 顶部 HUD 状态栏 -->
+  <header id="hud-top">
+    <div class="hud-item">
+      <span class="hud-label">第</span>
+      <span id="hud-level">1</span>
+      <span class="hud-label">天</span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">分数</span>
+      <span id="hud-score">0</span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">小费</span>
+      <span id="hud-tips">$0</span>
+    </div>
+    <div class="hud-item combo">
+      <span class="hud-label">连击</span>
+      <span id="hud-combo">x0</span>
+    </div>
+    <div class="hud-item day-progress">
+      <div class="day-bar"><div id="day-bar-fill"></div></div>
+      <span id="hud-customers-left">0/0</span>
+    </div>
+  </header>
+
+  <!-- 当前订单显示区 -->
+  <section id="order-tickets" class="hidden">
+    <div class="tickets-label">当前订单</div>
+    <div id="tickets-list"></div>
+  </section>
+
+  <!-- 提示气泡 -->
+  <div id="toast" class="hidden"></div>
+
+  <!-- 烧烤台控制面板（仅烧烤台可见） -->
+  <section id="grill-panel" class="station-panel hidden">
+    <div class="panel-title">烧烤台</div>
+    <div class="panel-hint">点击生肉饼放上烤架 · 烹饪中点击翻面 · 完成后点击移到保温区</div>
+    <button id="btn-raw-patty" class="action-btn raw">+ 生肉饼</button>
+    <div class="panel-stats">
+      <div>烤架：<span id="grill-count">0</span>/4</div>
+      <div>保温：<span id="warmer-count">0</span>/4</div>
+    </div>
+  </section>
+
+  <!-- 组装台控制面板 -->
+  <section id="build-panel" class="station-panel hidden">
+    <div class="panel-title">组装台</div>
+    <div class="panel-hint">按订单顺序点击配料堆叠 · 点击保温肉饼添加到汉堡</div>
+    <div id="ingredient-buttons" class="ingredient-grid"></div>
+    <div class="build-actions">
+      <button id="btn-add-patty" class="action-btn patty">+ 熟肉饼</button>
+      <button id="btn-serve" class="action-btn serve">交付订单</button>
+      <button id="btn-trash" class="action-btn trash">丢弃</button>
+    </div>
+  </section>
+
+  <!-- 点单台控制面板 -->
+  <section id="order-panel" class="station-panel hidden">
+    <div class="panel-title">点单台</div>
+    <div class="panel-hint">点击排队中的顾客接单</div>
+  </section>
+
+  <!-- 商店模态框 -->
+  <div id="shop-modal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>商店 · 升级</h2>
+        <button id="btn-close-shop" class="close-btn">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="shop-tips">可用小费：<span id="shop-tips-balance">$0</span></div>
+        <div id="shop-items"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 日结算模态框 -->
+  <div id="day-end-modal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>第 <span id="day-end-level"></span> 天结束</h2>
+      </div>
+      <div class="modal-body">
+        <div id="day-end-stats"></div>
+        <div class="day-end-actions">
+          <button id="btn-go-shop" class="action-btn">前往商店</button>
+          <button id="btn-next-day" class="action-btn primary">进入下一天</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 开始游戏模态框 -->
+  <div id="start-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1>老爹汉堡店 3D</h1>
+        <p class="subtitle">Daddy Hamburger 3D</p>
+      </div>
+      <div class="modal-body">
+        <div class="intro-text">
+          <p>欢迎来到老爹汉堡店！你将扮演汉堡厨师，在三个工作台之间切换：</p>
+          <ul>
+            <li><b>点单台</b>：点击顾客接单</li>
+            <li><b>烧烤台</b>：放肉饼、翻面、保温</li>
+            <li><b>组装台</b>：按订单顺序堆叠配料并交付</li>
+          </ul>
+          <p>顾客耐心有限，速度和准确性决定小费！</p>
+        </div>
+        <button id="btn-start-game" class="action-btn primary big">开始营业</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部导航 -->
+  <nav id="bottom-nav">
+    <button data-station="order" class="station-btn order">
+      <span class="btn-icon">📋</span>
+      <span class="btn-label">点单台</span>
+    </button>
+    <button data-station="grill" class="station-btn grill">
+      <span class="btn-icon">🔥</span>
+      <span class="btn-label">烧烤台</span>
+    </button>
+    <button data-station="build" class="station-btn build">
+      <span class="btn-icon">🍔</span>
+      <span class="btn-label">组装台</span>
+    </button>
+    <button id="btn-open-shop" class="station-btn shop">
+      <span class="btn-icon">🛒</span>
+      <span class="btn-label">商店</span>
+    </button>
+  </nav>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
