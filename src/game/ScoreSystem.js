@@ -72,8 +72,9 @@ export function evaluateIngredients(expected, actual) {
     const e = expected[i];
     const a = actual[i];
     if (e && a && e.id === a.id) {
-      // 位置准确性（放歪了扣分）
-      const acc = typeof a.accuracy === 'number' ? a.accuracy : 1.0;
+      // 位置准确性（放歪了扣分）。注意 typeof NaN === 'number'，
+      // 因此必须用 Number.isFinite 过滤掉 NaN/Infinity，避免污染求和结果
+      const acc = Number.isFinite(a.accuracy) ? a.accuracy : 1.0;
       matched += acc;
     }
   }
@@ -107,8 +108,12 @@ export function evaluateSpeed(elapsedSec, patienceDurationMs) {
  * @returns {{total: number, tips: number, rating: string, isPerfect: boolean, breakdown: object}}
  */
 export function computeFinalScore({ speedScore, ingredientScore, pattyScore }, combo, level) {
+  // 防御 NaN：若任一输入不是有限数，按 0 处理，避免评分链路整体被污染
+  const sSpeed = Number.isFinite(speedScore) ? speedScore : 0;
+  const sIng = Number.isFinite(ingredientScore) ? ingredientScore : 0;
+  const sPatty = Number.isFinite(pattyScore) ? pattyScore : 0;
   // 加权：配料 50%，肉饼 30%，速度 20%
-  const weighted = ingredientScore * 0.5 + pattyScore * 0.3 + speedScore * 0.2;
+  const weighted = sIng * 0.5 + sPatty * 0.3 + sSpeed * 0.2;
 
   // 评分等级
   let rating;

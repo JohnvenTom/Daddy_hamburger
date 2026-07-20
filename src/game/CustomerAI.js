@@ -173,6 +173,10 @@ export function createCustomerAI({ scene, state, onToast }) {
           onToast && onToast(`${c.name} 等太久离开了！`, 'danger');
           c.order.status = 'expired';
           state.combo = 0;
+          // 若该订单正是玩家正在组装的订单，清理 activeBuildOrderId
+          if (state.activeBuildOrderId === c.order.id) {
+            state.activeBuildOrderId = null;
+          }
           dismissCustomer(c, false);
           // 从订单列表移除
           const oIdx = state.orders.findIndex((o) => o.id === c.order.id);

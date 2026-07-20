@@ -152,11 +152,13 @@ export function createBurgerBuilder({ anchor, stationGroup, onToast }) {
   /**
    * 添加肉饼（来自保温区）
    * @param {string} doneness - 熟度
-   * @param {number} [offsetX=0]
-   * @param {number} [offsetZ=0]
-   * @returns {object}
+   * @param {object} [opts] - 偏移选项（与 addIngredient 一致的对象签名）
+   * @param {number} [opts.offsetX=0] - 玩家放置偏移 X
+   * @param {number} [opts.offsetZ=0] - 玩家放置偏移 Z
+   * @returns {object|null}
    */
-  function addPatty(doneness, offsetX = 0, offsetZ = 0) {
+  function addPatty(doneness, opts = {}) {
+    const { offsetX = 0, offsetZ = 0 } = opts;
     const part = addIngredient('patty', { pattyDoneness: doneness, offsetX, offsetZ });
     if (part) part.doneness = doneness;
     return part;

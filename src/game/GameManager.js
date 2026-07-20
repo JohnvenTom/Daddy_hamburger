@@ -214,6 +214,12 @@ export function createGameManager(container) {
     }
     if (station === 'build') {
       renderIngredientButtons();
+      // 若没有选中的订单，自动选中第一个活跃订单
+      const activeExists = state.orders.find((o) => o.id === state.activeBuildOrderId);
+      if (!activeExists && state.orders.length > 0) {
+        state.activeBuildOrderId = state.orders[0].id;
+      }
+      orderTicket.setActive(state.activeBuildOrderId);
     }
   }
 
@@ -307,9 +313,18 @@ export function createGameManager(container) {
   // === 订单交付流程 ===
   /**
    * 交付当前汉堡给活跃订单
+   * 若 activeBuildOrderId 已失效（顾客离开等），自动切换到第一个活跃订单
    */
   function serveOrder() {
-    const order = state.orders.find((o) => o.id === state.activeBuildOrderId);
+    // 查找当前选中的订单；若失效则自动选择第一个活跃订单
+    let order = state.orders.find((o) => o.id === state.activeBuildOrderId);
+    if (!order) {
+      order = state.orders[0];
+      if (order) {
+        state.activeBuildOrderId = order.id;
+        orderTicket.setActive(order.id);
+      }
+    }
     if (!order) {
       showToast('没有活跃订单！', 'danger');
       return;
